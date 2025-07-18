@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
   runApp(const MainApp());
@@ -21,6 +22,15 @@ class MainApp extends StatelessWidget {
         fontFamily: 'Roboto',
         useMaterial3: true,
       ),
+      locale: const Locale('pt', 'BR'),
+      supportedLocales: const [
+        Locale('pt', 'BR'),
+      ],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       home: const AuthWrapper(),
     );
   }

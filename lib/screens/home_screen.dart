@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login_screen.dart';
+import 'nest_data_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -138,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 
                 // Quick Stats
                 const Text(
-                  'Today\'s Overview',
+                  'Visão Geral de Hoje',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -152,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Expanded(
                       child: _buildStatCard(
-                        'Active Nests',
+                        'Ninhos Ativos',
                         '12',
                         Icons.egg_outlined,
                         Colors.orange,
@@ -161,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: _buildStatCard(
-                        'Hatchlings',
+                        'Filhotes',
                         '47',
                         Icons.pets,
                         Colors.green,
@@ -176,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Expanded(
                       child: _buildStatCard(
-                        'Alerts',
+                        'Alertas',
                         '3',
                         Icons.warning_amber,
                         Colors.red,
@@ -185,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: _buildStatCard(
-                        'Devices',
+                        'Dispositivos',
                         '8',
                         Icons.sensors,
                         Colors.blue,
@@ -198,7 +199,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 
                 // Quick Actions
                 const Text(
-                  'Quick Actions',
+                  'Ações Rápidas',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -209,13 +210,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 16),
                 
                 _buildActionButton(
-                  'View Nest Data',
+                  'Ver Dados dos Ninhos',
                   Icons.analytics_outlined,
                   () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Nest data feature coming soon!'),
-                        backgroundColor: Colors.blue,
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const NestDataScreen(),
                       ),
                     );
                   },
@@ -224,12 +224,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 12),
                 
                 _buildActionButton(
-                  'IoT Device Status',
+                  'Status dos Dispositivos IoT',
                   Icons.sensors_outlined,
                   () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('IoT monitoring feature coming soon!'),
+                        content: Text('Funcionalidade de dados dos ninhos em breve!'),
                         backgroundColor: Colors.blue,
                       ),
                     );
@@ -239,12 +239,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 12),
                 
                 _buildActionButton(
-                  'Report Incident',
+                  'Reportar Incidente',
                   Icons.report_problem_outlined,
                   () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Incident reporting feature coming soon!'),
+                        content: Text('Funcionalidade de relatório de incidentes em breve!'),
                         backgroundColor: Colors.blue,
                       ),
                     );

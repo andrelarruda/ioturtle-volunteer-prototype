@@ -126,7 +126,7 @@ class _SplashScreenState extends State<SplashScreen>
                   
                   // Subtitle
                   const Text(
-                    'Sea Turtle Monitoring',
+                    'Monitoramento de Tartarugas Marinhas',
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.white70,
@@ -146,7 +146,7 @@ class _SplashScreenState extends State<SplashScreen>
                   
                   // Tagline
                   const Text(
-                    'Protecting our ocean friends',
+                    'Protegendo nossos amigos do oceano',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white60,

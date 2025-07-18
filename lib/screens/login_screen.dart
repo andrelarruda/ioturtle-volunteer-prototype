@@ -116,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 8),
                   
                   const Text(
-                    'Volunteer Login',
+                    'Login do Voluntário',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.white70,
@@ -187,7 +187,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             obscureText: _obscurePassword,
                             style: const TextStyle(color: Colors.white),
                             decoration: InputDecoration(
-                              labelText: 'Password',
+                              labelText: 'Senha',
                               labelStyle: const TextStyle(color: Colors.white70),
                               prefixIcon: const Icon(
                                 Icons.lock_outlined,
@@ -259,7 +259,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ),
                                     )
                                   : const Text(
-                                      'Login',
+                                      'Entrar',
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -280,7 +280,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: const Column(
                               children: [
                                 Text(
-                                  'Mock Login:',
+                                  'Login Simulado:',
                                   style: TextStyle(
                                     color: Colors.white70,
                                     fontSize: 12,
@@ -289,14 +289,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 SizedBox(height: 4),
                                 Text(
-                                  'Any email and password will work',
+                                  'Qualquer email e senha funcionarão',
                                   style: TextStyle(
                                     color: Colors.white60,
                                     fontSize: 11,
                                   ),
                                 ),
                                 Text(
-                                  'Just fill in the fields above',
+                                  'Basta preencher os campos acima',
                                   style: TextStyle(
                                     color: Colors.white60,
                                     fontSize: 11,
@@ -314,7 +314,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   
                   // Footer
                   const Text(
-                    'Protecting sea turtles, one nest at a time',
+                    'Protegendo as tartarugas marinhas, um ninho de cada vez',
                     style: TextStyle(
                       color: Colors.white60,
                       fontSize: 12,
