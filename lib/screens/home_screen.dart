@@ -112,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
-                                  'Welcome back!',
+                                  'Bem vindo de volta!',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 20,
