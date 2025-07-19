@@ -319,11 +319,47 @@ class _NestDataScreenState extends State<NestDataScreen> {
     final _formKey = GlobalKey<FormState>();
     final _nestIdController = TextEditingController();
     final _locationController = TextEditingController();
+    
+    // State variables for IoT connection simulation
+    bool _isConnecting = false;
+    bool _isConnected = false;
+    double _temperature = 0.0;
+    double _humidity = 0.0;
+    String _connectionStatus = '';
+    Color _connectionColor = Colors.grey;
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            // Function to simulate IoT device connection
+            Future<void> _connectToIoTDevice(String nestId) async {
+              setModalState(() {
+                _isConnecting = true;
+                _connectionStatus = 'Conectando ao dispositivo IoT...';
+                _connectionColor = Colors.orange;
+              });
+              
+              // Simulate connection delay
+              await Future.delayed(const Duration(seconds: 2));
+              
+              // Simulate successful connection with random data
+              final random = DateTime.now().millisecondsSinceEpoch;
+              final temp = 25.0 + (random % 10) + (random % 10) / 10.0; // 25.0 to 35.0
+              final hum = 70.0 + (random % 30); // 70.0 to 100.0
+              
+              setModalState(() {
+                _isConnecting = false;
+                _isConnected = true;
+                _temperature = temp;
+                _humidity = hum;
+                _connectionStatus = 'Dispositivo IoT Conectado';
+                _connectionColor = Colors.green;
+              });
+            }
+            
+            return Dialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -417,6 +453,10 @@ class _NestDataScreenState extends State<NestDataScreen> {
                           filled: true,
                           fillColor: Colors.white.withOpacity(0.1),
                         ),
+                        onChanged: (value) {
+                          // Trigger UI update when text changes
+                          setModalState(() {});
+                        },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Por favor, insira o ID do ninho';
@@ -453,6 +493,20 @@ class _NestDataScreenState extends State<NestDataScreen> {
                           filled: true,
                           fillColor: Colors.white.withOpacity(0.1),
                         ),
+                        onChanged: (value) {
+                          // Trigger UI update when text changes
+                          setModalState(() {});
+                        },
+                        onFieldSubmitted: (value) {
+                          // Auto-connect after location is entered (2 second delay)
+                          if (_nestIdController.text.isNotEmpty && value.isNotEmpty && !_isConnected && !_isConnecting) {
+                            Future.delayed(const Duration(seconds: 2), () {
+                              if (mounted) {
+                                _connectToIoTDevice(_nestIdController.text);
+                              }
+                            });
+                          }
+                        },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Por favor, insira a localização';
@@ -464,146 +518,192 @@ class _NestDataScreenState extends State<NestDataScreen> {
                       const SizedBox(height: 16),
                       
                       // IoT Device Status
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: Colors.green.withOpacity(0.5),
+                      if (_nestIdController.text.isNotEmpty)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: _connectionColor.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: _connectionColor.withOpacity(0.5),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              if (_isConnecting)
+                                const SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
+                                  ),
+                                )
+                              else
+                                Icon(
+                                  _isConnected ? Icons.sensors : Icons.sensors_off,
+                                  color: _connectionColor,
+                                  size: 24,
+                                ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  _connectionStatus.isEmpty 
+                                      ? 'Dispositivo não conectado'
+                                      : _connectionStatus,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        child: Row(
+                      
+                      const SizedBox(height: 16),
+                      
+                      // Test Connection Button
+                      if (_nestIdController.text.isNotEmpty && !_isConnecting)
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: ElevatedButton.icon(
+                            onPressed: _isConnected 
+                                ? null 
+                                : () => _connectToIoTDevice(_nestIdController.text),
+                            icon: Icon(
+                              _isConnected ? Icons.check_circle : Icons.wifi_find,
+                              color: _isConnected ? Colors.green : Colors.white,
+                            ),
+                            label: Text(
+                              _isConnected ? 'Dispositivo Conectado' : 'Testar Conexão',
+                              style: TextStyle(
+                                color: _isConnected ? Colors.green : Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: _isConnected 
+                                  ? Colors.green.withOpacity(0.2)
+                                  : const Color(0xFF0EA5E9),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: _isConnected ? 0 : 2,
+                            ),
+                          ),
+                        ),
+                      
+                      // Temperature and Humidity (Read-only)
+                      if (_isConnected)
+                        Row(
                           children: [
-                            const Icon(
-                              Icons.sensors,
-                              color: Colors.green,
-                              size: 24,
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.2),
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.thermostat,
+                                          color: Colors.orange,
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        const Text(
+                                          'Temperatura',
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      '${_temperature.toStringAsFixed(1)} °C',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const Text(
+                                      'Dados automáticos do IoT',
+                                      style: TextStyle(
+                                        color: Colors.white60,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                             const SizedBox(width: 12),
-                            const Expanded(
-                              child: Text(
-                                'Dispositivo IoT Conectado',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.2),
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.water_drop,
+                                          color: Colors.blue,
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: 8),
+                                        const Text(
+                                          'Umidade',
+                                          style: TextStyle(
+                                            color: Colors.white70,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      '${_humidity.toStringAsFixed(0)}%',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const Text(
+                                      'Dados automáticos do IoT',
+                                      style: TextStyle(
+                                        color: Colors.white60,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      
-                      const SizedBox(height: 16),
-                      
-                      // Temperature and Humidity (Read-only)
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: Colors.white.withOpacity(0.2),
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.thermostat,
-                                        color: Colors.orange,
-                                        size: 20,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      const Text(
-                                        'Temperatura',
-                                        style: TextStyle(
-                                          color: Colors.white70,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  const Text(
-                                    '29.8 °C',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const Text(
-                                    'Dados automáticos do IoT',
-                                    style: TextStyle(
-                                      color: Colors.white60,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Container(
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: Colors.white.withOpacity(0.2),
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.water_drop,
-                                        color: Colors.blue,
-                                        size: 20,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      const Text(
-                                        'Umidade',
-                                        style: TextStyle(
-                                          color: Colors.white70,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  const Text(
-                                    '76%',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const Text(
-                                    'Dados automáticos do IoT',
-                                    style: TextStyle(
-                                      color: Colors.white60,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),
@@ -636,36 +736,36 @@ class _NestDataScreenState extends State<NestDataScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            // Add new nest to the list with automatic IoT data
-                            final newNest = {
-                              'id': _nestIdController.text,
-                              'location': _locationController.text,
-                              'temperature': 29.8, // Automatic IoT data
-                              'humidity': 76.0, // Automatic IoT data
-                              'hatchStatus': 'Encubando',
-                              'lastUpdate': DateTime.now(),
-                              'alert': false,
-                            };
-                            
-                            setState(() {
-                              _nests.add(newNest);
-                              _updateNotifications();
-                            });
-                            
-                            Navigator.of(context).pop();
-                            
-                            // Show success message
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Ninho ${_nestIdController.text} adicionado com sucesso!'),
-                                backgroundColor: Colors.green,
-                                duration: const Duration(seconds: 2),
-                              ),
-                            );
-                          }
-                        },
+                        onPressed: (_formKey.currentState?.validate() == true && _isConnected)
+                            ? () {
+                                // Add new nest to the list with automatic IoT data
+                                final newNest = {
+                                  'id': _nestIdController.text,
+                                  'location': _locationController.text,
+                                  'temperature': _temperature, // Connected IoT data
+                                  'humidity': _humidity, // Connected IoT data
+                                  'hatchStatus': 'Encubando',
+                                  'lastUpdate': DateTime.now(),
+                                  'alert': false,
+                                };
+                                
+                                setState(() {
+                                  _nests.add(newNest);
+                                  _updateNotifications();
+                                });
+                                
+                                Navigator.of(context).pop();
+                                
+                                // Show success message
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Ninho ${_nestIdController.text} adicionado com sucesso!'),
+                                    backgroundColor: Colors.green,
+                                    duration: const Duration(seconds: 2),
+                                  ),
+                                );
+                              }
+                            : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
                           foregroundColor: const Color(0xFF1E3A8A),
@@ -674,11 +774,12 @@ class _NestDataScreenState extends State<NestDataScreen> {
                           ),
                           elevation: 2,
                         ),
-                        child: const Text(
-                          'Adicionar',
+                        child: Text(
+                          _isConnected ? 'Adicionar' : 'Conecte o dispositivo primeiro',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
+                            color: _isConnected ? const Color(0xFF1E3A8A) : Colors.grey,
                           ),
                         ),
                       ),
@@ -688,6 +789,8 @@ class _NestDataScreenState extends State<NestDataScreen> {
               ],
             ),
           ),
+        );
+          },
         );
       },
     );
