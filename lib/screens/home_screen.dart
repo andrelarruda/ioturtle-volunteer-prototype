@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login_screen.dart';
 import 'nest_data_screen.dart';
+import 'iot_status_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -227,10 +228,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   'Status dos Dispositivos IoT',
                   Icons.sensors_outlined,
                   () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Funcionalidade de dados dos ninhos em breve!'),
-                        backgroundColor: Colors.blue,
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const IoTStatusScreen(),
                       ),
                     );
                   },
