@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../models/app_state.dart';
 
 class NestDataScreen extends StatefulWidget {
   const NestDataScreen({super.key});
@@ -10,52 +11,36 @@ class NestDataScreen extends StatefulWidget {
 
 class _NestDataScreenState extends State<NestDataScreen> {
   late Timer _timer;
-  List<Map<String, dynamic>> _nests = [];
   List<String> _notifications = [];
+  late AppState _appState;
 
   @override
   void initState() {
     super.initState();
-    _generateMockData();
+    _appState = AppState();
+    _appState.addListener(_onAppStateChanged);
     _timer = Timer.periodic(const Duration(seconds: 2), (_) => _updateMockData());
   }
 
+  @override
+  void dispose() {
+    _appState.removeListener(_onAppStateChanged);
+    _timer.cancel();
+    super.dispose();
+  }
+
+  void _onAppStateChanged() {
+    setState(() {});
+  }
+
   void _generateMockData() {
-    _nests = [
-      {
-        'id': 'Nest-001',
-        'location': 'Beach A',
-        'temperature': 29.5,
-        'humidity': 78,
-        'hatchStatus': 'Encubando',
-        'lastUpdate': DateTime.now(),
-        'alert': false,
-      },
-      {
-        'id': 'Nest-002',
-        'location': 'Beach B',
-        'temperature': 31.2,
-        'humidity': 82,
-        'hatchStatus': 'Eclodindo em breve',
-        'lastUpdate': DateTime.now(),
-        'alert': true,
-      },
-      {
-        'id': 'Nest-003',
-        'location': 'Beach C',
-        'temperature': 28.7,
-        'humidity': 75,
-        'hatchStatus': 'Encubando',
-        'lastUpdate': DateTime.now(),
-        'alert': false,
-      },
-    ];
+    // This method is no longer needed as data comes from AppState
     _updateNotifications();
   }
 
   void _updateMockData() {
     setState(() {
-      for (var nest in _nests) {
+      for (var nest in _appState.nests) {
         // Simulate temperature and humidity changes
         nest['temperature'] += (0.5 - (1.0 * (DateTime.now().second % 2)) * 0.2);
         nest['humidity'] += (0.5 - (1.0 * (DateTime.now().second % 2)) * 0.5);
@@ -74,7 +59,7 @@ class _NestDataScreenState extends State<NestDataScreen> {
   }
 
   void _updateNotifications() {
-    _notifications = _nests
+    _notifications = _appState.nests
         .where((nest) => nest['alert'] == true)
         .map((nest) =>
             'Alerta para ${nest['id']} em ${nest['location']}: ${nest['hatchStatus']}')
@@ -749,10 +734,8 @@ class _NestDataScreenState extends State<NestDataScreen> {
                                   'alert': false,
                                 };
                                 
-                                setState(() {
-                                  _nests.add(newNest);
-                                  _updateNotifications();
-                                });
+                                _appState.addNest(newNest);
+                                _updateNotifications();
                                 
                                 Navigator.of(context).pop();
                                 
@@ -794,12 +777,6 @@ class _NestDataScreenState extends State<NestDataScreen> {
         );
       },
     );
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
   }
 
   @override
@@ -858,9 +835,9 @@ class _NestDataScreenState extends State<NestDataScreen> {
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.all(16),
-                  itemCount: _nests.length,
+                  itemCount: _appState.nests.length,
                   itemBuilder: (context, index) {
-                    final nest = _nests[index];
+                    final nest = _appState.nests[index];
                     return GestureDetector(
                       onTap: () => _showNestDetailsModal(context, nest),
                       child: Card(

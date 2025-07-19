@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
 import 'login_screen.dart';
 import 'nest_data_screen.dart';
 import 'iot_status_screen.dart';
+import '../models/app_state.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,11 +15,24 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String _userEmail = '';
+  late AppState _appState;
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    _appState = AppState();
+    _appState.addListener(_onAppStateChanged);
+  }
+
+  @override
+  void dispose() {
+    _appState.removeListener(_onAppStateChanged);
+    super.dispose();
+  }
+
+  void _onAppStateChanged() {
+    setState(() {});
   }
 
   Future<void> _loadUserData() async {
@@ -155,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Expanded(
                       child: _buildStatCard(
                         'Ninhos Ativos',
-                        '12',
+                        '${_appState.nestCount}',
                         Icons.egg_outlined,
                         Colors.orange,
                       ),
@@ -179,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Expanded(
                       child: _buildStatCard(
                         'Alertas',
-                        '3',
+                        '${_appState.alertCount}',
                         Icons.warning_amber,
                         Colors.red,
                       ),
@@ -188,7 +203,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Expanded(
                       child: _buildStatCard(
                         'Dispositivos',
-                        '8',
+                        '${_appState.deviceCount}',
                         Icons.sensors,
                         Colors.blue,
                       ),

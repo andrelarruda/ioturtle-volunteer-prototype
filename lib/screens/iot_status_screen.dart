@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/app_state.dart';
 
 class IoTStatusScreen extends StatefulWidget {
   const IoTStatusScreen({super.key});
@@ -8,89 +9,27 @@ class IoTStatusScreen extends StatefulWidget {
 }
 
 class _IoTStatusScreenState extends State<IoTStatusScreen> {
-  List<Map<String, dynamic>> _devices = [];
+  late AppState _appState;
 
   @override
   void initState() {
     super.initState();
-    _generateMockDevices();
+    _appState = AppState();
+    _appState.addListener(_onAppStateChanged);
+  }
+
+  @override
+  void dispose() {
+    _appState.removeListener(_onAppStateChanged);
+    super.dispose();
+  }
+
+  void _onAppStateChanged() {
+    setState(() {});
   }
 
   void _generateMockDevices() {
-    _devices = [
-      {
-        'id': 'IoT-001',
-        'name': 'Sensor de Temperatura',
-        'location': 'Beach A',
-        'status': 'online',
-        'lastSeen': DateTime.now().subtract(const Duration(minutes: 2)),
-        'battery': 85,
-        'signal': 'strong',
-      },
-      {
-        'id': 'IoT-002',
-        'name': 'Sensor de Umidade',
-        'location': 'Beach B',
-        'status': 'online',
-        'lastSeen': DateTime.now().subtract(const Duration(minutes: 1)),
-        'battery': 92,
-        'signal': 'strong',
-      },
-      {
-        'id': 'IoT-003',
-        'name': 'Sensor de Movimento',
-        'location': 'Beach C',
-        'status': 'offline',
-        'lastSeen': DateTime.now().subtract(const Duration(hours: 3)),
-        'battery': 15,
-        'signal': 'weak',
-      },
-      {
-        'id': 'IoT-004',
-        'name': 'Câmera de Monitoramento',
-        'location': 'Beach A',
-        'status': 'online',
-        'lastSeen': DateTime.now().subtract(const Duration(minutes: 5)),
-        'battery': 78,
-        'signal': 'medium',
-      },
-      {
-        'id': 'IoT-005',
-        'name': 'Sensor de Temperatura',
-        'location': 'Beach D',
-        'status': 'maintenance',
-        'lastSeen': DateTime.now().subtract(const Duration(days: 1)),
-        'battery': 45,
-        'signal': 'none',
-      },
-      {
-        'id': 'IoT-006',
-        'name': 'Sensor de Umidade',
-        'location': 'Beach E',
-        'status': 'online',
-        'lastSeen': DateTime.now().subtract(const Duration(minutes: 30)),
-        'battery': 67,
-        'signal': 'medium',
-      },
-      {
-        'id': 'IoT-007',
-        'name': 'Sensor de Movimento',
-        'location': 'Beach F',
-        'status': 'online',
-        'lastSeen': DateTime.now().subtract(const Duration(minutes: 10)),
-        'battery': 88,
-        'signal': 'strong',
-      },
-      {
-        'id': 'IoT-008',
-        'name': 'Câmera de Monitoramento',
-        'location': 'Beach G',
-        'status': 'online',
-        'lastSeen': DateTime.now().subtract(const Duration(minutes: 15)),
-        'battery': 95,
-        'signal': 'strong',
-      },
-    ];
+    // This method is no longer needed as data comes from AppState
   }
 
   Color _getStatusColor(String status) {
@@ -205,30 +144,30 @@ class _IoTStatusScreenState extends State<IoTStatusScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildStatItem(
-                      'Total',
-                      '${_devices.length}',
-                      Icons.devices,
-                      Colors.white,
-                    ),
-                    _buildStatItem(
-                      'Online',
-                      '${_devices.where((d) => d['status'] == 'online').length}',
-                      Icons.check_circle,
-                      Colors.green,
-                    ),
-                    _buildStatItem(
-                      'Offline',
-                      '${_devices.where((d) => d['status'] == 'offline').length}',
-                      Icons.error,
-                      Colors.red,
-                    ),
-                    _buildStatItem(
-                      'Manutenção',
-                      '${_devices.where((d) => d['status'] == 'maintenance').length}',
-                      Icons.build,
-                      Colors.orange,
-                    ),
+                                         _buildStatItem(
+                       'Total',
+                       '${_appState.deviceCount}',
+                       Icons.devices,
+                       Colors.white,
+                     ),
+                     _buildStatItem(
+                       'Online',
+                       '${_appState.onlineDeviceCount}',
+                       Icons.check_circle,
+                       Colors.green,
+                     ),
+                     _buildStatItem(
+                       'Offline',
+                       '${_appState.devices.where((d) => d['status'] == 'offline').length}',
+                       Icons.error,
+                       Colors.red,
+                     ),
+                     _buildStatItem(
+                       'Manutenção',
+                       '${_appState.devices.where((d) => d['status'] == 'maintenance').length}',
+                       Icons.build,
+                       Colors.orange,
+                     ),
                   ],
                 ),
               ),
@@ -237,9 +176,9 @@ class _IoTStatusScreenState extends State<IoTStatusScreen> {
               Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: _devices.length,
+                  itemCount: _appState.devices.length,
                   itemBuilder: (context, index) {
-                    final device = _devices[index];
+                    final device = _appState.devices[index];
                     return Card(
                       color: Colors.white.withOpacity(0.9),
                       shape: RoundedRectangleBorder(

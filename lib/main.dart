@@ -4,8 +4,11 @@ import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'models/app_state.dart';
 
 void main() {
+  // Initialize app state
+  AppState().initialize();
   runApp(const MainApp());
 }
 
