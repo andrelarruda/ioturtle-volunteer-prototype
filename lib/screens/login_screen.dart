@@ -104,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 20),
                   
                   const Text(
-                    'TurtleGuard',
+                    'IoTurtle',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,

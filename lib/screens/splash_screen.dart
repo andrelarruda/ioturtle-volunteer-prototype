@@ -113,7 +113,7 @@ class _SplashScreenState extends State<SplashScreen>
                   
                   // App Title
                   const Text(
-                    'TurtleGuard',
+                    'IoTurtle',
                     style: TextStyle(
                       fontSize: 36,
                       fontWeight: FontWeight.bold,
